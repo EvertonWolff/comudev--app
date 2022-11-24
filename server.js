@@ -76,7 +76,7 @@ nextApp.prepare().then(async () => {
     })
 
   
-  app.post('/api/joim-room', async (req, res) => {
+  app.post('/api/join-room', async (req, res) => {
 
     /*
       1. Faz a requisição do username pelo formulário
@@ -107,6 +107,13 @@ nextApp.prepare().then(async () => {
 
   app.all('*', (req, res) => nextHandler(req, res));
 
+  /**
+   * 1. Em conecção com o webscoket
+   * 2. Função que transmite o código alterado entre todos os que compartilham a mesma sala
+   * 3. Envia para o room name, ou seja a sala, o código alterado naquela sala
+   * 
+   */
+
   io.on('connection', (socket) => {
     socket.on('CODE_CHANGED', async (code) => {
       const { roomId, username } = await redisClient.hGetAll(socket.id)
@@ -115,8 +122,13 @@ nextApp.prepare().then(async () => {
       socket.to(roomName).emit('CODE_CHANGED', code)
     })
 
+    // Em caso de desconecção
     socket.on('DISSCONNECT_FROM_ROOM', async ({ roomId, username }) => { })
 
+    /*
+    * 1. Usuário conecta a sala
+    * 2. Puxa roomId que está no redis, em memória e envia ao socket id
+    */
     socket.on('CONNECTED_TO_ROOM', async ({ roomId, username }) => {
       await redisClient.lPush(`${roomId}:users`, `${username}`)
       await redisClient.hSet(socket.id, { roomId, username })
@@ -129,7 +141,7 @@ nextApp.prepare().then(async () => {
     })
 
     socket.on('disconnect', async () => {
-      // TODO if 2 users have the same name
+      // Se 2 usuários tem o mesmo nome
       const { roomId, username } = await redisClient.hGetAll(socket.id)
       const users = await redisClient.lRange(`${roomId}:users`, 0, -1)
       const newUsers = users.filter((user) => username !== user)

@@ -32,15 +32,16 @@ export default function Login() {
         window.localStorage.setItem("username", username)
 
         try {
-
-            const requestRoomId = await fetch("/api/room", {
+            
+            const requestRoomId = await fetch("/api/join-room", {
                 method: "POST",
                 body: {
                     username,
                     roomId
                 }
             })
-            const responseRoomId = requestRoomId.json()
+            
+            const responseRoomId = await requestRoomId.json()
             alert(responseRoomId)
             setIsLoading(false)
 

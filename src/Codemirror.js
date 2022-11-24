@@ -5,7 +5,6 @@ import { javascript } from '@codemirror/lang-javascript';
 import { useState, useEffect } from 'react';
 import { Grid, GridItem } from '@chakra-ui/react'
 import io from 'socket.io-client'
-
 const socket = io();
 
 
@@ -96,6 +95,8 @@ function Editor({ roomId }) {
           </GridItem>
           <GridItem>
             <iframe
+              height={700}
+              width={730}
               className="preview"
               srcDoc={userCode}
               title="output"
