@@ -84,9 +84,9 @@ nextApp.prepare().then(async () => {
     const roomId = req.body.roomId
 
     // Verificamos se o parâmetro username existe e não está em branco
-    if (!username || username === "") {
+    /*if (!username || username === "") {
       return res.status(401).send({ error: true, message: "Nome de usuário não pode ficar em branco" })
-    }
+    }*/
 
     /*
       Verifica a existência do roomId

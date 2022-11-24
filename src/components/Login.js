@@ -31,7 +31,7 @@ export default function Login() {
 
         window.localStorage.setItem("username", username)
 
-        try {
+        /*try {
 
             const requestRoomId = await fetch("/api/join-room", {
                 method: "POST",
@@ -52,7 +52,14 @@ export default function Login() {
                 isClosable: true
             })
 
-        }
+        }*/
+        if(!roomId || roomId === "") {
+            alert("sala não pode ficar em branco")
+           
+           return 
+           }
+           
+        return window.location.href=`/room/${roomId}`
     }
     return (
         <Center>

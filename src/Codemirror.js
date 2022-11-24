@@ -86,7 +86,7 @@ function Editor({ roomId }) {
           <GridItem>
             <CodeMirror
               value={userCode}
-              height="700px"
+              height="750px"
               width="auto"
               theme={dracula}
               extensions={[javascript({ jsx: true })]}
@@ -95,7 +95,7 @@ function Editor({ roomId }) {
           </GridItem>
           <GridItem>
             <iframe
-              height={700}
+              height={750}
               width={730}
               className="preview"
               srcDoc={userCode}
