@@ -1,5 +1,5 @@
 //Faz a requisição das configurações das variáveis locais
-require('dotenv').config()
+require('dotenv').config();
 
 /*
   1. Requisição do next.js para link com o app express
@@ -8,25 +8,24 @@ require('dotenv').config()
   4. Requisição do conversor em JSON dos dados enviados pelo formulário de login
   5. Constante a ser usada para garantir a segurança na requisição de dados pela url
 */
-const next = require('next')
-const express = require("express")
-const http = require("http")
-const { json } = require('body-parser')
-const cors = require('cors')
+const next = require('next');
+const express = require("express");
+const http = require("http");
+//const cors = require('cors');
 
 /*
   1. Requisição do módulo socket.io
   2. Requisição do método criar cliente da redis, banco de dados em memória
 */
-const socket = require("socket.io")
-const { createClient } = require('redis')
+const socket = require("socket.io");
+const { createClient } = require('redis');
 
 /*
   1. Requisição para criação de id aleatório dinamicamente
   2. Elemento para comparação e concatenação de dados
 */
-const { v4 } = require('uuid')
-const moment = require('moment')
+const { v4 } = require('uuid');
+const moment = require('moment');
 
 /*
   1. Constante que estabelece a porta do navegador
@@ -41,7 +40,7 @@ const io = new socket.Server();
 //Instância que cria o cliente redis e passa a url chave de permissão que vem de uma variável na memória
 const redisClient = createClient({
   url: process.env.REDIS_CLIENT
-})
+});
 
 /*
   1. Conectando ao app Next
@@ -62,9 +61,8 @@ nextApp.prepare().then(async () => {
   const app = express();
   const server = http.createServer(app);
   io.attach(server);
-  app.use = (json())
-  app.use = (cors())
-
+  //app.use = (cors())
+  app.use(express.json())
   //Mostra no console se houve erro ao conectar com o Redis banco de dados em memória
   redisClient.on('error', console.error)
 
@@ -77,7 +75,7 @@ nextApp.prepare().then(async () => {
 
   
   app.post('/api/join-room', async (req, res) => {
-
+    console.log(req.body)
     /*
       1. Faz a requisição do username pelo formulário
       2. Faz a requisição do id enviado pelo formulário
@@ -107,13 +105,6 @@ nextApp.prepare().then(async () => {
 
   app.all('*', (req, res) => nextHandler(req, res));
 
-  /**
-   * 1. Em conecção com o webscoket
-   * 2. Função que transmite o código alterado entre todos os que compartilham a mesma sala
-   * 3. Envia para o room name, ou seja a sala, o código alterado naquela sala
-   * 
-   */
-
   io.on('connection', (socket) => {
     socket.on('CODE_CHANGED', async (code) => {
       const { roomId, username } = await redisClient.hGetAll(socket.id)
@@ -122,13 +113,8 @@ nextApp.prepare().then(async () => {
       socket.to(roomName).emit('CODE_CHANGED', code)
     })
 
-    // Em caso de desconecção
     socket.on('DISSCONNECT_FROM_ROOM', async ({ roomId, username }) => { })
 
-    /*
-    * 1. Usuário conecta a sala
-    * 2. Puxa roomId que está no redis, em memória e envia ao socket id
-    */
     socket.on('CONNECTED_TO_ROOM', async ({ roomId, username }) => {
       await redisClient.lPush(`${roomId}:users`, `${username}`)
       await redisClient.hSet(socket.id, { roomId, username })
@@ -141,7 +127,7 @@ nextApp.prepare().then(async () => {
     })
 
     socket.on('disconnect', async () => {
-      // Se 2 usuários tem o mesmo nome
+      // TODO if 2 users have the same name
       const { roomId, username } = await redisClient.hGetAll(socket.id)
       const users = await redisClient.lRange(`${roomId}:users`, 0, -1)
       const newUsers = users.filter((user) => username !== user)
